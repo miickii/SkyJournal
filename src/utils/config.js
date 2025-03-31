@@ -44,38 +44,38 @@ export const translations = {
   
   // Common UI elements
   addJournalEntry: {
-    en: "Write something from",
-    zh: "写点什么来自"
+    en: "Share a message from",
+    zh: "分享消息来自"
   },
   howsTheSky: {
     en: "What's up?",
     zh: "最近怎么样？"
   },
   shareThoughts: {
-    en: "Share what's on your mind or anything interesting...",
-    zh: "分享你的想法或任何有趣的事情..."
+    en: "Share a message, quote or anything interesting...",
+    zh: "分享一条消息、一句话或任何有趣的事情..."
   },
   shareJournalEntry: {
-    en: "Post",
-    zh: "发布"
+    en: "Send",
+    zh: "发送"
   },
   journalEntries: {
-    en: "Your Entries",
-    zh: "你的日记"
+    en: "Messages",
+    zh: "消息"
   },
   
   // Language cards
   addLanguageWord: {
-    en: "Add word",
-    zh: "添加单词"
+    en: "Add language note",
+    zh: "添加语言笔记"
   },
   word: {
     en: "Word or phrase",
     zh: "单词或短语"
   },
   removeLanguageEntry: {
-    en: "Remove word",
-    zh: "删除单词"
+    en: "Remove language note",
+    zh: "删除语言笔记"
   },
   pronunciation: {
     en: "Pronunciation",
@@ -123,9 +123,21 @@ export const translations = {
     en: "Language Cards",
     zh: "语言卡片"
   },
+  languageMessages: {
+    en: "Language Chat",
+    zh: "语言聊天"
+  },
   noCardsYet: {
     en: "No language cards yet. Add some when writing entries!",
     zh: "还没有语言卡片。写日记时添加一些吧！"
+  },
+  noMessagesYet: {
+    en: "No messages yet. Share something to start chatting!",
+    zh: "还没有消息。分享一些内容开始聊天吧！"
+  },
+  loading: {
+    en: "Loading messages...",
+    zh: "加载消息中..."
   },
   tapToSeeTranslation: {
     en: "Tap to see translation",
@@ -154,5 +166,106 @@ export const translations = {
   showChinese: {
     en: "中文",
     zh: "中文"
+  },
+  
+  // Messaging
+  today: {
+    en: "Today",
+    zh: "今天"
+  },
+  yesterday: {
+    en: "Yesterday",
+    zh: "昨天"
+  },
+  justNow: {
+    en: "Just now",
+    zh: "刚刚"
+  },
+  minutesAgo: {
+    en: "min ago",
+    zh: "分钟前"
+  },
+  shareQuote: {
+    en: "Share a quote or phrase",
+    zh: "分享一句话或短语"
+  },
+  clearMessages: {
+    en: "Reset all messages",
+    zh: "重置所有消息"
+  },
+  clearing: {
+    en: "Clearing...",
+    zh: "清除中..."
+  },
+  confirmClearMessages: {
+    en: "Are you sure you want to delete all messages? This cannot be undone.",
+    zh: "确定要删除所有消息吗？此操作无法撤销。"
+  },
+  // GitHub auth
+  loginWithGitHub: {
+    en: "Sign in with GitHub",
+    zh: "使用 GitHub 登录"
+  },
+  logout: {
+    en: "Sign out",
+    zh: "退出登录"
+  },
+  loginRequired: {
+    en: "Sign in to share messages globally",
+    zh: "登录以全球共享消息"
+  },
+  connecting: {
+    en: "Connecting...",
+    zh: "连接中..."
+  },
+  connectionError: {
+    en: "Connection error",
+    zh: "连接错误"
+  },
+  // Simple login
+  login: {
+    en: "Sign in",
+    zh: "登录"
+  },
+  enterPassword: {
+    en: "Enter shared password",
+    zh: "输入共享密码"
+  },
+  localModeActive: {
+    en: "Local Mode Active",
+    zh: "本地模式已激活"
+  },
+  signInToShare: {
+    en: "Sign in with the shared password to see and share messages with your friend",
+    zh: "使用共享密码登录以查看并与朋友分享消息"
+  },
+  // Admin panel translations
+  adminPanelDescription: {
+    en: "This panel is for administrators only. Connect your GitHub account to enable cloud storage for all users.",
+    zh: "此面板仅供管理员使用。连接您的GitHub帐户以为所有用户启用云存储。"
+  },
+  adminSettings: {
+    en: "Admin Settings",
+    zh: "管理员设置"
+  },
+  hideAdminPanel: {
+    en: "Hide Admin Panel",
+    zh: "隐藏管理员面板"
+  },
+  githubConnected: {
+    en: "✓ GitHub connected. Messages will be saved to Gist.",
+    zh: "✓ GitHub已连接。消息将保存到Gist。"
+  },
+  githubNotConnected: {
+    en: "! GitHub not connected. Messages are only stored locally.",
+    zh: "! GitHub未连接。消息仅存储在本地。"
+  },
+  disconnectGitHub: {
+    en: "Disconnect GitHub",
+    zh: "断开GitHub连接"
+  },
+  connectGitHub: {
+    en: "Connect GitHub",
+    zh: "连接GitHub"
   }
 }; 

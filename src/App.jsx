@@ -8,17 +8,30 @@ import WeatherCard from './components/weather/WeatherCard';
 import JournalForm from './components/journal/JournalForm';
 import JournalList from './components/journal/JournalList';
 import LanguageCollection from './components/language/LanguageCollection';
+import SimpleLogin from './components/auth/SimpleLogin';
 
 // Utils and hooks
 import { DEFAULT_USER } from './utils/config';
 import { getUserLocation, getJournalEntries } from './utils/storage';
 import { useWeather } from './hooks/useWeather';
+import { isLoggedIn } from './utils/simpleAuth';
+import { isConfigured } from './utils/githubStorage';
 
 function App() {
   const [userLocation, setUserLocation] = useState(getUserLocation() || DEFAULT_USER);
   const [refreshJournalList, setRefreshJournalList] = useState(0);
   const [showChineseText, setShowChineseText] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(isLoggedIn());
   const { weatherData } = useWeather(userLocation);
+  
+  // Log GitHub Gist configuration status on startup
+  useEffect(() => {
+    if (isConfigured()) {
+      console.log('GitHub Gist storage is configured and will be used for message sync');
+    } else {
+      console.log('GitHub Gist storage is not configured. Using local storage only.');
+    }
+  }, []);
   
   // Determine the other location
   const otherLocation = userLocation === 'denmark' ? 'china' : 'denmark';
@@ -35,13 +48,21 @@ function App() {
   const toggleChineseText = () => {
     setShowChineseText(!showChineseText);
   };
+  
+  const handleLoginStateChange = (loggedIn) => {
+    setIsUserLoggedIn(loggedIn);
+    if (loggedIn) {
+      // If user just logged in, refresh the entries
+      setRefreshJournalList(prev => prev + 1);
+    }
+  };
 
   // Add this useEffect to periodically fetch entries
   useEffect(() => {
     // Function to fetch entries
     const fetchEntries = async () => {
       try {
-        await getJournalEntries(); // This will now pull from API
+        await getJournalEntries(); // This will try GitHub Gist, then local encrypted storage
         setRefreshJournalList(prev => prev + 1);
       } catch (error) {
         console.error('Error fetching entries:', error);
@@ -63,7 +84,12 @@ function App() {
         onLocationChange={handleLocationChange} 
         showChineseText={showChineseText}
         onToggleChineseText={toggleChineseText}
-      />
+      >
+        <SimpleLogin 
+          showChineseText={showChineseText} 
+          onLoginStateChange={handleLoginStateChange} 
+        />
+      </Header>
       
       <main className="container mx-auto px-4">
         <TimeComparison showChineseText={showChineseText} />
@@ -90,11 +116,13 @@ function App() {
               onEntryAdded={handleJournalAdded}
               userLocation={userLocation}
               showChineseText={showChineseText}
+              isLoggedIn={isUserLoggedIn}
             />
             <JournalList 
               selectedLocation={userLocation} 
               refreshTrigger={refreshJournalList}
-              showChineseText={showChineseText} 
+              showChineseText={showChineseText}
+              onEntriesCleared={handleJournalAdded}
             />
           </div>
           

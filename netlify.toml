@@ -1,3 +1,16 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+  functions = "netlify/functions"
+
+[dev]
+  command = "npm run dev"
+  port = 8888
+  targetPort = 5173
+  publish = "dist"
+  autoLaunch = true
+  framework = "#custom"
+
 [[headers]]
   for = "/*.js"
   [headers.values]
@@ -12,6 +25,11 @@
   for = "/*.css"
   [headers.values]
     Content-Type = "text/css; charset=utf-8"
+
+[[redirects]]
+  from = "/auth-callback"
+  to = "/"
+  status = 200
 
 [[redirects]]
   from = "/*"

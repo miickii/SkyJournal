@@ -1,7 +1,7 @@
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.openweathermap.org; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://openweathermap.org;
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.openweathermap.org https://journal-api.mickiharning.workers.dev; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://openweathermap.org;
 
 /*.html
   Content-Type: text/html; charset=utf-8

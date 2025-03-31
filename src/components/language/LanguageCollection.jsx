@@ -1,190 +1,244 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { getJournalEntries } from '../../utils/storage';
+import { getJournalEntries, clearJournalEntries } from '../../utils/storage';
 import { locations, translations } from '../../utils/config';
 
 const LanguageCollection = ({ showChineseText }) => {
-  const [languageCards, setLanguageCards] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [selectedLanguage, setSelectedLanguage] = useState('all');
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isClearing, setIsClearing] = useState(false);
   
   // Helper function to get translated text
   const t = (key) => {
     return showChineseText ? translations[key].zh : translations[key].en;
   };
   
+  const fetchEntries = async () => {
+    try {
+      setLoading(true);
+      const entries = await getJournalEntries();
+      
+      // Ensure entries is an array before filtering
+      if (!Array.isArray(entries)) {
+        console.error('Journal entries is not an array:', entries);
+        setMessages([]);
+        return;
+      }
+      
+      const cards = entries
+        .filter(entry => entry.languageEntry)
+        .map(entry => ({
+          ...entry.languageEntry,
+          language: entry.location,
+          id: entry.id,
+          date: entry.date
+        }))
+        // Sort by date, newest first
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      setMessages(cards);
+    } catch (error) {
+      console.error('Error fetching journal entries:', error);
+      setMessages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
-    // Extract language cards from journal entries
-    const entries = getJournalEntries();
-    const cards = entries
-      .filter(entry => entry.languageEntry)
-      .map(entry => ({
-        ...entry.languageEntry,
-        language: entry.location,
-        id: entry.id,
-        date: entry.date
-      }));
-    
-    setLanguageCards(cards);
-    setCurrentCardIndex(0);
+    // Extract language messages from journal entries
+    fetchEntries();
   }, []);
   
-  const filteredCards = 
+  const handleClearMessages = async () => {
+    if (window.confirm(t('confirmClearMessages'))) {
+      setIsClearing(true);
+      try {
+        await clearJournalEntries();
+        setMessages([]);
+      } catch (error) {
+        console.error('Error clearing messages:', error);
+      } finally {
+        setIsClearing(false);
+      }
+    }
+  };
+  
+  const filteredMessages = 
+    !Array.isArray(messages) ? [] :
     selectedLanguage === 'all'
-      ? languageCards
-      : languageCards.filter(card => card.language === selectedLanguage);
+      ? messages
+      : messages.filter(message => message.language === selectedLanguage);
   
   const handleLanguageChange = (language) => {
     setSelectedLanguage(language);
-    setCurrentCardIndex(0);
-    setIsFlipped(false);
   };
   
-  const handleNextCard = () => {
-    setIsFlipped(false);
-    setCurrentCardIndex(prevIndex => {
-      const nextIndex = prevIndex + 1;
-      return nextIndex >= filteredCards.length ? 0 : nextIndex;
-    });
+  // Format date for display with relative time
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    // Today or yesterday
+    if (diffDays === 0) {
+      if (diffMins < 5) {
+        return t('justNow');
+      } else if (diffHours === 0) {
+        return `${diffMins} ${t('minutesAgo')}`;
+      } else {
+        return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      }
+    } else if (diffDays === 1) {
+      return `${t('yesterday')} ${date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+    } else {
+      return date.toLocaleDateString(undefined, { 
+        month: 'short', 
+        day: 'numeric'
+      }) + ' ' + date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
   };
   
-  const handlePrevCard = () => {
-    setIsFlipped(false);
-    setCurrentCardIndex(prevIndex => {
-      const prevCardIndex = prevIndex - 1;
-      return prevCardIndex < 0 ? filteredCards.length - 1 : prevCardIndex;
-    });
-  };
-  
-  const toggleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-  
-  if (filteredCards.length === 0) {
+  if (loading) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center border-0">
-        <h2 className="text-xl font-semibold mb-4">{t('languageCards')}</h2>
-        <p className="text-gray-500 dark:text-gray-400">
-          {t('noCardsYet')}
+        <div className="flex justify-center items-center space-x-2">
+          <div className="w-3 h-3 rounded-full bg-indigo-500 animate-bounce"></div>
+          <div className="w-3 h-3 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-3 h-3 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+        <p className="text-gray-500 dark:text-gray-400 mt-2">
+          {t('loading')}
         </p>
       </div>
     );
   }
   
-  const currentCard = filteredCards[currentCardIndex];
+  if (filteredMessages.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center border-0">
+        <h2 className="text-xl font-semibold mb-4">{t('languageMessages')}</h2>
+        <div className="py-8">
+          <span className="text-5xl mb-4 block">🫥</span>
+          <p className="text-gray-500 dark:text-gray-400">
+            {t('noMessagesYet')}
+          </p>
+        </div>
+      </div>
+    );
+  }
   
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-0">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">{t('languageCards')}</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border-0">
+      <div className="sticky top-0 bg-white dark:bg-gray-800 p-4 border-b dark:border-gray-700 z-10">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">{t('languageMessages')}</h2>
+          
+          <div className="flex space-x-2">
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                selectedLanguage === 'all'
+                  ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+              }`}
+              onClick={() => handleLanguageChange('all')}
+            >
+              {t('all')}
+            </button>
+            <button
+              className={`px-3 py-1 text-sm rounded-full flex items-center ${
+                selectedLanguage === 'denmark'
+                  ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+              }`}
+              onClick={() => handleLanguageChange('denmark')}
+            >
+              <span className="mr-1">{locations.denmark.emoji}</span>
+              <span>{locations.denmark.language}</span>
+            </button>
+            <button
+              className={`px-3 py-1 text-sm rounded-full flex items-center ${
+                selectedLanguage === 'china'
+                  ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+              }`}
+              onClick={() => handleLanguageChange('china')}
+            >
+              <span className="mr-1">{locations.china.emoji}</span>
+              <span>{locations.china.language}</span>
+            </button>
+          </div>
+        </div>
         
-        <div className="flex space-x-2">
+        <div className="mt-3 flex justify-end">
           <button
-            className={`px-3 py-1 text-sm rounded-md border-0 ${
-              selectedLanguage === 'all'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-            }`}
-            onClick={() => handleLanguageChange('all')}
+            className="px-3 py-1 text-xs rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 flex items-center"
+            onClick={handleClearMessages}
+            disabled={isClearing || loading}
           >
-            {t('all')}
-          </button>
-          <button
-            className={`px-3 py-1 text-sm rounded-md flex items-center border-0 ${
-              selectedLanguage === 'denmark'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-            }`}
-            onClick={() => handleLanguageChange('denmark')}
-          >
-            <span className="mr-1">{locations.denmark.emoji}</span>
-            <span>{locations.denmark.language}</span>
-          </button>
-          <button
-            className={`px-3 py-1 text-sm rounded-md flex items-center border-0 ${
-              selectedLanguage === 'china'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-            }`}
-            onClick={() => handleLanguageChange('china')}
-          >
-            <span className="mr-1">{locations.china.emoji}</span>
-            <span>{locations.china.language}</span>
+            {isClearing ? (
+              <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-3 w-3 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {t('clearing')}
+              </span>
+            ) : (
+              <span>🗑️ {t('clearMessages')}</span>
+            )}
           </button>
         </div>
       </div>
       
-      <div className="flex justify-center">
-        <motion.div 
-          className={`w-full max-w-md h-64 cursor-pointer bg-indigo-50 dark:bg-indigo-950 rounded-xl shadow-lg overflow-hidden relative border-0 ${
-            isFlipped ? 'bg-white dark:bg-gray-900' : ''
-          }`}
-          onClick={toggleFlip}
-          initial={false}
-          animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.5 }}
-          style={{ perspective: 1000 }}
-        >
-          {/* Front of card */}
-          <motion.div 
-            className="absolute inset-0 p-6 flex flex-col justify-center items-center backface-hidden"
-            style={{ 
-              backfaceVisibility: 'hidden',
-              display: isFlipped ? 'none' : 'flex'
-            }}
-          >
-            <span className="text-xs text-gray-500 dark:text-gray-400 absolute top-3 right-3">
-              {locations[currentCard.language].emoji} {currentCardIndex + 1}/{filteredCards.length}
-            </span>
-            <h3 className="text-3xl font-bold mb-2">{currentCard.word}</h3>
-            <p className="text-gray-600 dark:text-gray-300 text-center">[{currentCard.pronunciation}]</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 absolute bottom-3 left-0 right-0 text-center">
-              {t('tapToSeeTranslation')}
-            </p>
-          </motion.div>
-          
-          {/* Back of card */}
-          <motion.div 
-            className="absolute inset-0 p-6 flex flex-col justify-center items-center backface-hidden"
-            style={{ 
-              backfaceVisibility: 'hidden',
-              rotateY: 180,
-              display: isFlipped ? 'flex' : 'none'
-            }}
-          >
-            <span className="text-xs text-gray-500 dark:text-gray-400 absolute top-3 right-3">
-              {locations[currentCard.language].emoji} {currentCardIndex + 1}/{filteredCards.length}
-            </span>
-            <h3 className="text-2xl font-bold mb-2">{currentCard.translation}</h3>
-            <p className="text-gray-600 dark:text-gray-300 text-center p-3 bg-white dark:bg-gray-800 rounded-lg border-0">
-              "{currentCard.example}"
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 absolute bottom-3 left-0 right-0 text-center">
-              {t('tapToSeeWord')}
-            </p>
-          </motion.div>
-        </motion.div>
-      </div>
-      
-      <div className="flex justify-center mt-6 space-x-4">
-        <button 
-          onClick={handlePrevCard}
-          className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 rounded-md border-0"
-          disabled={filteredCards.length <= 1}
-        >
-          {t('previous')}
-        </button>
-        <button 
-          onClick={handleNextCard}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md border-0"
-          disabled={filteredCards.length <= 1}
-        >
-          {t('next')}
-        </button>
+      <div className="max-h-[500px] overflow-y-auto p-4">
+        <div className="space-y-4">
+          {filteredMessages.map((message) => (
+            <div 
+              key={message.id}
+              className={`flex ${message.language === 'denmark' ? 'justify-start' : 'justify-end'}`}
+            >
+              <div className={`max-w-[80%] ${
+                message.language === 'denmark' 
+                  ? 'bg-gray-100 dark:bg-gray-700 rounded-tr-2xl rounded-br-2xl rounded-bl-2xl' 
+                  : 'bg-indigo-100 dark:bg-indigo-900 rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+              } p-4 shadow-sm`}>
+                <div className="flex items-center mb-1">
+                  <span className="mr-1">{locations[message.language].emoji}</span>
+                  <span className="font-medium">{message.word}</span>
+                </div>
+                
+                {message.pronunciation && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 ml-6 -mt-1 mb-2">
+                    [{message.pronunciation}]
+                  </p>
+                )}
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 mt-2 border dark:border-gray-600">
+                  <p className="text-gray-800 dark:text-gray-200">{message.translation}</p>
+                </div>
+                
+                {message.example && message.example.trim() !== "" && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 italic mt-2 ml-2">
+                    "{message.example}"
+                  </p>
+                )}
+                
+                <div className="text-right mt-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDate(message.date)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-export default LanguageCollection; 
+export default LanguageCollection;

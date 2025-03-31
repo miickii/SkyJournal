@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { locations, translations } from '../../utils/config';
 import { saveJournalEntry } from '../../utils/storage';
 
-const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText }) => {
+const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText, isLoggedIn }) => {
   const [content, setContent] = useState('');
   const [showLanguageForm, setShowLanguageForm] = useState(false);
   const [languageEntry, setLanguageEntry] = useState({
@@ -71,6 +71,16 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
         {t('addJournalEntry')} {locations[userLocation].emoji}
       </h2>
       
+      {!isLoggedIn && (
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md border border-blue-200 dark:border-blue-800">
+          <p className="text-sm">
+            <span className="font-medium">💡 {t('localModeActive')}</span>
+            <br />
+            {t('signInToShare')}
+          </p>
+        </div>
+      )}
+      
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <textarea
@@ -78,9 +88,10 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
             rows="3"
             value={content}
             onChange={handleContentChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+            className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 ${!isLoggedIn ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
             placeholder={t('shareThoughts')}
             required
+            disabled={!isLoggedIn}
           />
         </div>
         
@@ -88,7 +99,8 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
           <button
             type="button"
             onClick={toggleLanguageForm}
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+            className={`text-sm text-indigo-600 dark:text-indigo-400 hover:underline ${!isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={!isLoggedIn}
           >
             {showLanguageForm 
               ? t('removeLanguageEntry')
@@ -97,7 +109,8 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
           
           <button
             type="submit"
-            className="px-3 py-1 text-sm rounded-md border-0 bg-blue-600 text-white hover:bg-blue-700"
+            className={`px-3 py-1 text-sm rounded-md border-0 bg-blue-600 text-white hover:bg-blue-700 ${!isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={!isLoggedIn}
           >
             {t('shareJournalEntry')}
           </button>
@@ -128,7 +141,6 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
                   onChange={handleLanguageChange}
                   placeholder={t('pronunciation')}
                   className="w-full px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
-                  required={showLanguageForm}
                 />
               </div>
               
@@ -154,7 +166,6 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
                   onChange={handleLanguageChange}
                   placeholder={t('exampleSentence')}
                   className="w-full px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
-                  required={showLanguageForm}
                 />
               </div>
             </div>

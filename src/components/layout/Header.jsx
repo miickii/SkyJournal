@@ -5,7 +5,7 @@ import { DEFAULT_USER, locations, translations } from '../../utils/config';
 import { setUserLocation, getUserLocation } from '../../utils/storage';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
-const Header = ({ onLocationChange, showChineseText, onToggleChineseText }) => {
+const Header = ({ onLocationChange, showChineseText, onToggleChineseText, children }) => {
   const [isDarkMode, setIsDarkMode] = useDarkMode();
   const [userLocation, setUserLocationState] = useState(
     getUserLocation() || DEFAULT_USER
@@ -46,11 +46,14 @@ const Header = ({ onLocationChange, showChineseText, onToggleChineseText }) => {
         </motion.div>
         
         <div className="flex items-center space-x-4">
+          {/* GitHub login component */}
+          {children && <div className="mr-4">{children}</div>}
+          
           <div className="flex items-center space-x-2">
             <button
               onClick={() => changeUserLocation('denmark')}
               className={`p-2 rounded-md ${
-                locations.denmark.emoji === '🇩🇰' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-700'
+                userLocation === 'denmark' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-700'
               }`}
               aria-label="Switch to Denmark"
             >
@@ -60,7 +63,7 @@ const Header = ({ onLocationChange, showChineseText, onToggleChineseText }) => {
             <button
               onClick={() => changeUserLocation('china')}
               className={`p-2 rounded-md ${
-                locations.china.emoji === '🇨🇳' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-700'
+                userLocation === 'china' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-700'
               }`}
               aria-label="Switch to China"
             >
