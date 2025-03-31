@@ -13,8 +13,12 @@ const JournalList = ({ selectedLocation, refreshTrigger, showChineseText }) => {
   };
   
   useEffect(() => {
-    const allEntries = getJournalEntries();
-    setEntries(allEntries);
+    const loadEntries = async () => {
+      const allEntries = await getJournalEntries();
+      setEntries(allEntries);
+    };
+    
+    loadEntries();
   }, [refreshTrigger]);
   
   const filteredEntries = () => {

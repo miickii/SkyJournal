@@ -1,12 +1,22 @@
 /*
-  Content-Type: text/javascript
   X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.openweathermap.org; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://openweathermap.org;
+
+/*.html
+  Content-Type: text/html; charset=utf-8
 
 /*.js
-  Content-Type: text/javascript
+  Content-Type: application/javascript; charset=utf-8
 
 /*.jsx
-  Content-Type: text/javascript
+  Content-Type: application/javascript; charset=utf-8
 
 /*.css
-  Content-Type: text/css 
+  Content-Type: text/css; charset=utf-8
+
+/*.json
+  Content-Type: application/json; charset=utf-8
+
+/*.svg
+  Content-Type: image/svg+xml; charset=utf-8 

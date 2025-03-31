@@ -1,13 +1,28 @@
-import { LOCAL_STORAGE_KEYS } from './config';
+import { LOCAL_STORAGE_KEYS, API_URL } from './config';
 
-export const saveJournalEntry = (entry) => {
+// Save a journal entry
+export const saveJournalEntry = async (entry) => {
   try {
-    const existingEntries = getJournalEntries();
+    // First save to localStorage for immediate access
+    const existingEntries = getJournalEntriesFromLocalStorage();
     const newEntries = [...existingEntries, entry];
     localStorage.setItem(
-      LOCAL_STORAGE_KEYS.JOURNAL_ENTRIES,
+      LOCAL_STORAGE_KEYS.JOURNAL_ENTRIES, 
       JSON.stringify(newEntries)
     );
+    
+    // Then sync to API
+    try {
+      await fetch(`${API_URL}/api/entries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEntries)
+      });
+    } catch (apiError) {
+      console.error('Error syncing to API:', apiError);
+      // Still return success as we saved locally
+    }
+    
     return true;
   } catch (error) {
     console.error('Error saving journal entry:', error);
@@ -15,18 +30,38 @@ export const saveJournalEntry = (entry) => {
   }
 };
 
-export const getJournalEntries = () => {
+// Get journal entries (from API with fallback to localStorage)
+export const getJournalEntries = async () => {
+  try {
+    // Try to get from API first
+    const response = await fetch(`${API_URL}/api/entries`);
+    if (response.ok) {
+      const entries = await response.json();
+      // Update local storage
+      localStorage.setItem(LOCAL_STORAGE_KEYS.JOURNAL_ENTRIES, JSON.stringify(entries));
+      return entries;
+    }
+  } catch (error) {
+    console.error('Error fetching entries from API:', error);
+  }
+  
+  // Fallback to localStorage
+  return getJournalEntriesFromLocalStorage();
+};
+
+// Helper function to get entries from localStorage only
+const getJournalEntriesFromLocalStorage = () => {
   try {
     const entries = localStorage.getItem(LOCAL_STORAGE_KEYS.JOURNAL_ENTRIES);
     return entries ? JSON.parse(entries) : [];
   } catch (error) {
-    console.error('Error getting journal entries:', error);
+    console.error('Error getting journal entries from localStorage:', error);
     return [];
   }
 };
 
 export const getJournalEntriesByLocation = (location) => {
-  const entries = getJournalEntries();
+  const entries = getJournalEntriesFromLocalStorage();
   return entries.filter(entry => entry.location === location);
 };
 

@@ -33,7 +33,7 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
     }));
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!content) return;
@@ -47,7 +47,7 @@ const JournalForm = ({ weatherData, onEntryAdded, userLocation, showChineseText 
       languageEntry: showLanguageForm ? languageEntry : null
     };
     
-    saveJournalEntry(newEntry);
+    await saveJournalEntry(newEntry);
     
     // Reset form
     setContent('');

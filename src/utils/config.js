@@ -21,6 +21,9 @@ export const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY || "YOUR_OPE
 // Cache duration in milliseconds (1 hour)
 export const WEATHER_CACHE_DURATION = 60 * 60 * 1000;
 
+// API URL for the Cloudflare Worker
+export const API_URL = 'https://journal-api.mickiharning.workers.dev';
+
 export const LOCAL_STORAGE_KEYS = {
   USER_LOCATION: "skyjournal-user-location",
   JOURNAL_ENTRIES: "skyjournal-journal-entries",

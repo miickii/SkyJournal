@@ -11,7 +11,7 @@ import LanguageCollection from './components/language/LanguageCollection';
 
 // Utils and hooks
 import { DEFAULT_USER } from './utils/config';
-import { getUserLocation } from './utils/storage';
+import { getUserLocation, getJournalEntries } from './utils/storage';
 import { useWeather } from './hooks/useWeather';
 
 function App() {
@@ -35,6 +35,27 @@ function App() {
   const toggleChineseText = () => {
     setShowChineseText(!showChineseText);
   };
+
+  // Add this useEffect to periodically fetch entries
+  useEffect(() => {
+    // Function to fetch entries
+    const fetchEntries = async () => {
+      try {
+        await getJournalEntries(); // This will now pull from API
+        setRefreshJournalList(prev => prev + 1);
+      } catch (error) {
+        console.error('Error fetching entries:', error);
+      }
+    };
+    
+    // Initial fetch
+    fetchEntries();
+    
+    // Set up periodic fetching (every 30 seconds)
+    const interval = setInterval(fetchEntries, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pb-10">
