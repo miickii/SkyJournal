@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiMoon, FiSun, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiMoon, FiSun, FiToggleLeft, FiToggleRight, FiSettings } from 'react-icons/fi';
 import { DEFAULT_USER, locations, translations } from '../../utils/config';
 import { setUserLocation, getUserLocation } from '../../utils/storage';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
-const Header = ({ onLocationChange, showChineseText, onToggleChineseText, children }) => {
+const Header = ({ onLocationChange, showChineseText, onToggleChineseText, onOpenSettings, children }) => {
   const [isDarkMode, setIsDarkMode] = useDarkMode();
   const [userLocation, setUserLocationState] = useState(
     getUserLocation() || DEFAULT_USER
@@ -87,10 +87,18 @@ const Header = ({ onLocationChange, showChineseText, onToggleChineseText, childr
           >
             {isDarkMode ? <FiSun className="text-yellow-400" /> : <FiMoon className="text-indigo-700" />}
           </button>
+          
+          <button
+            onClick={onOpenSettings}
+            className="p-2 rounded-md bg-gray-100 dark:bg-gray-700"
+            aria-label="Open settings"
+          >
+            <FiSettings className="text-gray-600 dark:text-gray-300" />
+          </button>
         </div>
       </div>
     </header>
   );
 };
 
-export default Header; 
+export default Header;

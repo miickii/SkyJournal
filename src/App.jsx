@@ -9,6 +9,7 @@ import JournalForm from './components/journal/JournalForm';
 import JournalList from './components/journal/JournalList';
 import LanguageCollection from './components/language/LanguageCollection';
 import SimpleLogin from './components/auth/SimpleLogin';
+import Settings from './components/settings/Settings';
 
 // Utils and hooks
 import { DEFAULT_USER } from './utils/config';
@@ -22,6 +23,7 @@ function App() {
   const [refreshJournalList, setRefreshJournalList] = useState(0);
   const [showChineseText, setShowChineseText] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(isLoggedIn());
+  const [showSettings, setShowSettings] = useState(false);
   const { weatherData } = useWeather(userLocation);
   
   // Log GitHub Gist configuration status on startup
@@ -57,6 +59,14 @@ function App() {
     }
   };
 
+  const handleOpenSettings = () => {
+    setShowSettings(true);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+  };
+
   // Add this useEffect to periodically fetch entries
   useEffect(() => {
     // Function to fetch entries
@@ -84,6 +94,7 @@ function App() {
         onLocationChange={handleLocationChange} 
         showChineseText={showChineseText}
         onToggleChineseText={toggleChineseText}
+        onOpenSettings={handleOpenSettings}
       >
         <SimpleLogin 
           showChineseText={showChineseText} 
@@ -131,6 +142,13 @@ function App() {
           </div>
         </motion.div>
       </main>
+
+      {showSettings && (
+        <Settings 
+          showChineseText={showChineseText}
+          onClose={handleCloseSettings}
+        />
+      )}
     </div>
   );
 }

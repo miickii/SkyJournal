@@ -2,11 +2,14 @@
 const GIST_DESCRIPTION = 'SkyJournal Messages Storage';
 const STORAGE_GIST_FILENAME = 'sky-journal-messages.json';
 
-// Replace these with your own values
-// 1. Create a GitHub Personal Access Token with 'gist' scope at https://github.com/settings/tokens
-// 2. Create an empty secret Gist at https://gist.github.com/ and copy its ID from the URL
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN || 'YOUR_PERSONAL_ACCESS_TOKEN';
-const GIST_ID = import.meta.env.VITE_GIST_ID || 'YOUR_GIST_ID';
+// First try user-provided keys from localStorage, then fallback to env vars
+const GITHUB_TOKEN = localStorage.getItem('user-github-token') || 
+                    import.meta.env.VITE_GITHUB_TOKEN || 
+                    'YOUR_PERSONAL_ACCESS_TOKEN';
+                    
+const GIST_ID = localStorage.getItem('user-gist-id') || 
+              import.meta.env.VITE_GIST_ID || 
+              'YOUR_GIST_ID';
 
 // Import CryptoJS for encryption
 import CryptoJS from 'crypto-js';

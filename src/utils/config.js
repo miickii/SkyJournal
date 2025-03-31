@@ -16,7 +16,9 @@ export const locations = {
 };
 
 // Use API key from environment variables
-export const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY || "YOUR_OPENWEATHERMAP_API_KEY";
+export const WEATHER_API_KEY = localStorage.getItem('user-weather-api-key') || 
+                             import.meta.env.VITE_WEATHER_API_KEY || 
+                             "YOUR_OPENWEATHERMAP_API_KEY";
 
 // Cache duration in milliseconds (1 hour)
 export const WEATHER_CACHE_DURATION = 60 * 60 * 1000;
@@ -40,6 +42,44 @@ export const translations = {
   appTitle: {
     en: "Journal",
     zh: "日记"
+  },
+
+  // Add these to your translations object in src/utils/config.js
+settings: {
+    en: "Settings",
+    zh: "设置"
+  },
+  settingsDescription: {
+    en: "Configure your API keys and tokens",
+    zh: "配置你的API密钥和令牌"
+  },
+  weatherApiKey: {
+    en: "OpenWeather API Key",
+    zh: "OpenWeather API密钥"
+  },
+  githubToken: {
+    en: "GitHub Personal Access Token",
+    zh: "GitHub个人访问令牌"
+  },
+  gistId: {
+    en: "GitHub Gist ID",
+    zh: "GitHub Gist ID"
+  },
+  getApiKey: {
+    en: "Get a free API key from",
+    zh: "从以下网站获取免费API密钥"
+  },
+  saveSettings: {
+    en: "Save Settings",
+    zh: "保存设置"
+  },
+  cancel: {
+    en: "Cancel",
+    zh: "取消"
+  },
+  settingsSaved: {
+    en: "Settings saved! Please refresh the page for changes to take effect.",
+    zh: "设置已保存！请刷新页面以使更改生效。"
   },
   
   // Common UI elements
