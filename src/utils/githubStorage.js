@@ -22,11 +22,25 @@ export const isConfigured = () => {
 };
 
 // Fetch the Gist
+// Add this to the top of githubStorage.js
+let lastFetchAttempt = 0;
+const FETCH_COOLDOWN = 60000; // 1 minute between attempts
+
+// Then modify fetchGist function
 export const fetchGist = async () => {
   if (!isConfigured()) {
     console.warn('GitHub Gist is not configured.');
     return null;
   }
+  
+  // Check if we tried recently
+  const now = Date.now();
+  if (now - lastFetchAttempt < FETCH_COOLDOWN) {
+    console.log('Skipping fetch attempt - cooling down');
+    return null;
+  }
+  
+  lastFetchAttempt = now;
   
   try {
     const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
